@@ -93,7 +93,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @see UserInterface
-     */
+    */
+    
+
 public function getRoles(): array
     {
         $roles = [];
@@ -107,10 +109,11 @@ public function getRoles(): array
         return array_unique($roles);
     }
 
+
     /**
      * @param Role[] $roles
      */
-
+    
     public function addRole(Role $role): self
     {
         if (!$this->roles->contains($role)) {
