@@ -3,10 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Entity\Role;
+
 use App\Repository\RoleRepository;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\MailService;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,10 +15,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
+
+
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
-    public function register(RoleRepository $roleRepository, Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    public function register(MailService $mailService, RoleRepository $roleRepository, Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -30,7 +33,7 @@ class RegistrationController extends AbstractController
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
-            //on ajoute le rôle ROLE_UTILISATEUR à tous les nouveaux inscrits
+            //add 'ROLE_UTILISATEUR' to all new subscribers
             $role = $roleRepository->findOneBy(['libelle' => 'ROLE_UTILISATEUR']);
             
             if ($role) {
@@ -40,10 +43,10 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // send a welcome mail
             
-
-
+            // send a welcome mail
+            $mailService->sendMail($user, 'Bienvenue sur Vite et Gourmand !', 'emails/welcome.html.twig', ['user' => $user]);
+            
             return $this->redirectToRoute('app_login');
         }
 
@@ -51,4 +54,5 @@ class RegistrationController extends AbstractController
             'registrationForm' => $form,
         ]);
     }
+
 }
