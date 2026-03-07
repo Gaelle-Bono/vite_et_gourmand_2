@@ -3,11 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\MailService;
 
 use App\Repository\RoleRepository;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\MailService;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
