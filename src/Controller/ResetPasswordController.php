@@ -6,22 +6,20 @@ use App\Entity\User;
 use App\Form\ChangePasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
 use App\Service\MailService;
-use Doctrine\ORM\EntityManagerInterface;
 
+use Doctrine\ORM\EntityManagerInterface;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
+
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
-
 
 #[Route('/reset-password')]
 class ResetPasswordController extends AbstractController
@@ -38,7 +36,7 @@ class ResetPasswordController extends AbstractController
      * Display & process form to request a password reset.
      */
     #[Route('', name: 'app_forgot_password_request')]
-    public function request(MailService $mailService, Request $request, TranslatorInterface $translator): Response
+    public function request(MailService $mailService, Request $request): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
         $form->handleRequest($request);
@@ -46,7 +44,8 @@ class ResetPasswordController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var string $email */
             $email = $form->get('email')->getData();
-            return $this->processSendingPasswordResetEmail($mailService, $email, $translator);
+
+            return $this->processSendingPasswordResetEmail($mailService, $email);
         }
 
         return $this->render('reset_password/request.html.twig', [
@@ -88,7 +87,7 @@ class ResetPasswordController extends AbstractController
         $token = $this->getTokenFromSession();
 
         if (null === $token) {
-            throw $this->createNotFoundException('Pas de jeton de réinitialisation du mot de passe trouvé dans l\'URL ou dans la session.');
+            throw $this->createNotFoundException('Pas de jeton de réinitialisation de mot de passe trouvé dans l\'URL ou dans la session.');
         }
 
         try {
@@ -130,7 +129,7 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    private function processSendingPasswordResetEmail(MailService $mailService, string $emailFormData, TranslatorInterface $translator): RedirectResponse
+    private function processSendingPasswordResetEmail(MailService $mailService, string $emailFormData): RedirectResponse
     {
         $user = $this->entityManager->getRepository(User::class)->findOneBy([
             'email' => $emailFormData,
@@ -155,13 +154,11 @@ class ResetPasswordController extends AbstractController
             // ));
 
             return $this->redirectToRoute('app_check_email');
-            //return $this->redirectToRoute('app_forgot_password_request');
         }
 
         // send a mail for reinitialisation of password
-        $mailService->sendMail($user, 'Votre demande de réinitialisation de mot de passe', 'reset_password/email.html.twig', ['resetToken' => $resetToken]);
-            
-
+        $mailService->sendMail($user, 'Votre demande de réinitialisation de mot de passe', 'reset_password/email.html.twig', ['resetToken' => $resetToken,'user'=>$user]);
+        
         // Store the token object in session for retrieval in check-email route.
         $this->setTokenObjectInSession($resetToken);
 

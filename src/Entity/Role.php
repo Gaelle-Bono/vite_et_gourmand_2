@@ -13,7 +13,7 @@ class Role
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50, unique: true)]
+    #[ORM\Column(length: 50)]
     private ?string $libelle = null;
 
     public function getId(): ?int
@@ -26,7 +26,7 @@ class Role
         return $this->libelle;
     }
 
-    public function setLibelle(?string $libelle): static
+    public function setLibelle(string $libelle): static
     {
         $this->libelle = $libelle;
 

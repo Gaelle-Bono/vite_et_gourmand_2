@@ -7,13 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec ce mail')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -22,12 +17,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(length: 50, unique: true)]
     private ?string $email = null;
-
-    #[ORM\ManyToMany(targetEntity: Role::class)]
-    #[ORM\JoinTable(name: 'user_role')]
-    private Collection $roles;
 
     /**
      * @var string The hashed password
@@ -36,19 +27,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $nom = null;
-
-    #[ORM\Column(length: 50)]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 50)]
+    private ?string $nom = null;
+
+    #[ORM\Column(length: 50)]
     private ?string $telephone = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $adresse = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $codePostal = null;
 
     #[ORM\Column(length: 50)]
     private ?string $ville = null;
@@ -56,13 +41,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50)]
     private ?string $pays = null;
 
+    #[ORM\Column(length: 50)]
+    private ?string $adressePostale = null;
 
-
-
-    public function __construct()
-    {
-        $this->roles = new ArrayCollection();
-    }
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Role $role = null;
 
     public function getId(): ?int
     {
@@ -89,48 +73,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
-    }
-
-    /**
-     * @see UserInterface
-    */
-    
-
-public function getRoles(): array
-    {
-        $roles = [];
-
-        foreach ($this->roles as $role) {
-            $roles[] = $role->getLibelle();
-        }
-
-        // Garantit au minimum ROLE_VISITEUR
-        $roles[] = 'ROLE_VISITEUR';
-        return array_unique($roles);
-    }
-
-
-    /**
-     * @param Role[] $roles
-     */
-    
-    public function addRole(Role $role): self
-    {
-        if (!$this->roles->contains($role)) {
-            $this->roles->add($role);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param Role[] $roles
-     */
-
-    public function removeRole(Role $role): self
-    {
-        $this->roles->removeElement($role);
-        return $this;
     }
 
     /**
@@ -164,18 +106,7 @@ public function getRoles(): array
     {
         // @deprecated, to be removed when upgrading to Symfony 8
     }
-    
-    public function getNom(): ?string
-    {
-        return $this->nom;
-    }
 
-    public function setNom(string $nom): static
-    {
-        $this->nom = $nom;
-
-        return $this;
-    }
     public function getPrenom(): ?string
     {
         return $this->prenom;
@@ -188,40 +119,29 @@ public function getRoles(): array
         return $this;
     }
 
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
     public function getTelephone(): ?string
     {
         return $this->telephone;
     }
 
-    public function setTelephone(?string $telephone): static
+    public function setTelephone(string $telephone): static
     {
         $this->telephone = $telephone;
 
         return $this;
     }
-    
-    public function getAdresse(): ?string
-    {
-        return $this->adresse;
-    }
-
-    public function setAdresse(string $adresse): static
-    {
-        $this->adresse = $adresse;
-
-        return $this;
-    }
-    public function getCodePostal(): ?string
-    {
-        return $this->codePostal;
-    }
-    public function setCodePostal(string $codePostal): static
-    {
-        $this->codePostal = $codePostal;
-
-        return $this;
-    }
-
 
     public function getVille(): ?string
     {
@@ -247,4 +167,34 @@ public function getRoles(): array
         return $this;
     }
 
+    public function getAdressePostale(): ?string
+    {
+        return $this->adressePostale;
+    }
+
+    public function setAdressePostale(string $adressePostale): static
+    {
+        $this->adressePostale = $adressePostale;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        return $this->role ? [$this->role->getLibelle()] : [];
+    }
+
+    public function getRole(): ?Role
+    {
+        return $this->role;
+    }
+
+    public function setRole(?Role $role): static
+    {
+        $this->role = $role;
+        return $this;
+    }
 }

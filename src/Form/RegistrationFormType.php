@@ -24,7 +24,6 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Nom',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Entrez votre nom',
                     'maxlength' => 50
                 ]
             ])
@@ -33,7 +32,6 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Prénom',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Entrez votre prénom',
                     'maxlength' => 50
                 ]
             ])
@@ -42,34 +40,23 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Télephone',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Entrez votre télephone',
                     'maxlength' => 50
                 ]
             ])
 
-            ->add('adresse', TextType::class, [
+            ->add('adressePostale', TextType::class, [
                 'label' => 'Adresse',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Entrez votre adresse',
                     'maxlength' => 50
-                ]
-            ])
-
-            ->add('codePostal', TextType::class, [
-                'label' => 'Code postal',
-                'required' => true,
-                'attr' => [
-                    'placeholder' => 'Entrez votre code postal',
-                    'maxlength' => 50
-                ]
+                ],
+                'help' => 'Entrez le numéro de rue, la rue et le code postal'
             ])
 
             ->add('ville', TextType::class, [
                 'label' => 'Ville',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Entrez votre ville',
                     'maxlength' => 50
                 ]
             ])
@@ -78,7 +65,6 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Pays',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Entrez votre pays',
                     'maxlength' => 50
                 ]
             ])
@@ -87,7 +73,6 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Adresse e-mail',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Entrez votre adresse e-mail',
                     'maxlength' => 50
                 ]
             ])
@@ -99,7 +84,6 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Mot de passe',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Entrez votre mot de passe',
                     'autocomplete' => 'new-password'
                 ],
                 'constraints' => [
@@ -117,12 +101,8 @@ class RegistrationFormType extends AbstractType
                         message : 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial.',
                     ),     
                 ],
+                'help' => 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial.'
             ])
-
-
-
-
-
 
             // // Liste déroulante
             // ->add('role', ChoiceType::class, [
